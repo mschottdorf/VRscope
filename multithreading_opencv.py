@@ -68,6 +68,26 @@ def resize_if_required(frame: Frame) -> numpy.ndarray:
     return cv_frame
 
 
+def set_exposure(cam: Camera, increment):
+    """
+    Increments the camera exposure by a multiple of the smallest step
+    """
+
+    #Adjust pixel formats
+    # frame = cam.get_frame ()
+    # frame.convert_pixel_format(PixelFormat.Mono8)
+    # cv2.imwrite('frame.jpg', frame.as_opencv_image ())
+    # get_pixel_formats()#returnsatupleofallpixelformatssupportedbythecamera
+    # get_pixel_format()#returnsthecurrentpixelformat
+    # set_pixel_format(fmt)#enablesyoutosetanewpixelformat
+
+    with Vimba.get_instance() as vimba:
+        exposure_time = cam.ExposureTime
+        time = exposure_time.get()
+        inc = exposure_time.get_increment()
+        exposure_time.set(time + increment*inc)
+
+
 def create_dummy_frame() -> numpy.ndarray:
     cv_frame = numpy.zeros((50, 640, 1), numpy.uint8)
     cv_frame[:] = 0
@@ -155,7 +175,7 @@ class FrameProducer(threading.Thread):
             self.log.info('Camera {}: Failed to set Feature \'ExposureAuto\'.'.format(
                           self.cam.get_id()))
 
-        self.cam.set_pixel_format(PixelFormat.Mono8)
+        self.cam.set_pixel_format(PixelFormat.Mono8)   ## Format set here.
 
     def run(self):
         self.log.info('Thread \'FrameProducer({})\' started.'.format(self.cam.get_id()))
